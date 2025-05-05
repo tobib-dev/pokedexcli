@@ -44,8 +44,13 @@ func getCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays the names of 20 location areas in the Pokemon world",
+			description: "Displays the names of next 20 location areas in the Pokemon world or first 20 if no previous pages exists",
 			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Display the names of the previous 20 location areas in the Pokemon world",
+			callback:    commandMapb,
 		},
 	}
 }
