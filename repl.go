@@ -10,7 +10,22 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
+}
+
+type config struct {
+	previous string
+	next     string
+}
+
+type LocationAreaResponse struct {
+	Count    int    `json:"count"`
+	Next     string `json:"next"`
+	Previous string `json:"previous"`
+	Results  []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"results"`
 }
 
 var commandRegistry map[string]cliCommand
@@ -27,12 +42,18 @@ func getCommands() map[string]cliCommand {
 			description: "Exit the Pokedex",
 			callback:    commandExit,
 		},
+		"map": {
+			name:        "map",
+			description: "Displays the names of 20 location areas in the Pokemon world",
+			callback:    commandMap,
+		},
 	}
 }
 
 func startRepl() {
 	input := bufio.NewScanner(os.Stdin)
 
+	var confg config
 	for {
 		fmt.Print("Pokedex > ")
 		input.Scan()
@@ -42,9 +63,10 @@ func startRepl() {
 		}
 		word := line[0]
 		if command, exists := getCommands()[word]; exists == true {
-			command.callback()
+			command.callback(&confg)
+		} else {
+			fmt.Print("Unknown command\n")
 		}
-		fmt.Print("Unknown command\n")
 	}
 }
 
