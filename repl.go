@@ -53,7 +53,7 @@ func getCommands() map[string]cliCommand {
 func startRepl() {
 	input := bufio.NewScanner(os.Stdin)
 
-	var confg config
+	var cfg config
 	for {
 		fmt.Print("Pokedex > ")
 		input.Scan()
@@ -63,7 +63,7 @@ func startRepl() {
 		}
 		word := line[0]
 		if command, exists := getCommands()[word]; exists == true {
-			command.callback(&confg)
+			command.callback(&cfg)
 		} else {
 			fmt.Print("Unknown command\n")
 		}

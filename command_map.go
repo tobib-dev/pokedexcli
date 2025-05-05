@@ -7,8 +7,15 @@ import (
 	"net/http"
 )
 
-func commandMap(*config) error {
-	res, err := http.Get("https://pokeapi.co/api/v2/location-area/")
+func commandMap(cfg *config) error {
+	var apiURL string
+	if len(cfg.next) == 0 {
+		apiURL = "https://pokeapi.co/api/v2/location-area/"
+	} else {
+		apiURL = cfg.next
+	}
+
+	res, err := http.Get(apiURL)
 	if err != nil {
 		return fmt.Errorf("Error retrieving http response")
 	}
@@ -23,9 +30,11 @@ func commandMap(*config) error {
 	if err = json.Unmarshal(data, &areas); err != nil {
 		return fmt.Errorf("Error unmarshalling response to struct")
 	}
+	cfg.next = areas.Next
 
 	for _, area := range areas.Results {
 		fmt.Printf("%s\n", area.Name)
 	}
+
 	return nil
 }
