@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/tobib-dev/pokedexcli/internal/pokeapi"
 )
 
 type cliCommand struct {
@@ -14,18 +16,9 @@ type cliCommand struct {
 }
 
 type config struct {
-	previous string
-	next     string
-}
-
-type LocationAreaResponse struct {
-	Count    int    `json:"count"`
-	Next     string `json:"next"`
-	Previous string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
+	pokeapiClient    pokeapi.Client
+	prevLocationsURL *string
+	nextLocationsURL *string
 }
 
 var commandRegistry map[string]cliCommand
@@ -37,28 +30,27 @@ func getCommands() map[string]cliCommand {
 			description: "Displays a help message",
 			callback:    commandHelp,
 		},
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
-		},
 		"map": {
 			name:        "map",
 			description: "Displays the names of next 20 location areas in the Pokemon world or first 20 if no previous pages exists",
-			callback:    commandMap,
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
 			description: "Display the names of the previous 20 location areas in the Pokemon world",
 			callback:    commandMapb,
 		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
 	}
 }
 
-func startRepl() {
+func startRepl(cfg *config) {
 	input := bufio.NewScanner(os.Stdin)
 
-	var cfg config
 	for {
 		fmt.Print("Pokedex > ")
 		input.Scan()
@@ -68,9 +60,14 @@ func startRepl() {
 		}
 		word := line[0]
 		if command, exists := getCommands()[word]; exists == true {
-			command.callback(&cfg)
+			err := command.callback(cfg)
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
 		} else {
-			fmt.Print("Unknown command\n")
+			fmt.Println("Unknown command")
+			continue
 		}
 	}
 }
