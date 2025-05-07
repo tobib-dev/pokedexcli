@@ -37,12 +37,12 @@ func (c *Client) ListLocations(pageURL *string) (LocationAreaResponse, error) {
 	if err != nil {
 		return LocationAreaResponse{}, err
 	}
-	c.cache.Add(url, data)
 
 	areas := LocationAreaResponse{}
 	if err = json.Unmarshal(data, &areas); err != nil {
 		return LocationAreaResponse{}, err
 	}
 
+	c.cache.Add(url, data)
 	return areas, nil
 }
