@@ -1,7 +1,6 @@
 package pokecache
 
 import (
-	//"fmt"
 	"sync"
 	"time"
 )
@@ -24,7 +23,7 @@ func NewCache(interval time.Duration) *Cache {
 		interval: interval,
 	}
 
-	go cache.reapLoop()
+	go cache.reapLoop(interval)
 
 	return cache
 }
@@ -50,13 +49,20 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	return nil, false
 }
 
-func (c *Cache) reapLoop() {
+func (c *Cache) reapLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	for {
+		<-ticker.C
 
-	for key, value := range c.entries {
-		if time.Now().Sub(value.createdAt) > c.interval {
-			c.mu.Lock()
-			delete(c.entries, key)
-			c.mu.Unlock()
+		c.mu.Lock()
+
+		now := time.Now()
+		for key, entry := range c.entries {
+			if now.Sub(entry.createdAt) > interval {
+				delete(c.entries, key)
+			}
 		}
+
+		c.mu.Unlock()
 	}
 }
