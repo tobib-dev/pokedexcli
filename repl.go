@@ -67,8 +67,9 @@ func startRepl(cfg *config) {
 		word := line[0]
 		option := ""
 		if len(line) > 1 {
-			option = line[1]
+			option = strings.Join(line[1:], "-")
 		}
+
 		if command, exists := getCommands()[word]; exists == true {
 			err := command.callback(cfg, option)
 			if err != nil {
