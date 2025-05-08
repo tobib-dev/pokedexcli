@@ -12,11 +12,13 @@ func commandExplore(cfg *config, args ...string) error {
 
 	p, err := cfg.pokeapiClient.ListPokemon(areaID)
 	if err != nil {
-		return fmt.Errorf("No pokemons found")
+		return err
 	}
 
-	for _, pokemon := range p.PokemonEncounters {
-		fmt.Println(pokemon.Pokemon.Name)
+	fmt.Printf("Exploring %s...\n", p.Name)
+	fmt.Println("Found Pokemon: ")
+	for _, enc := range p.PokemonEncounters {
+		fmt.Printf(" - %s\n", enc.Pokemon.Name)
 	}
 
 	return nil
