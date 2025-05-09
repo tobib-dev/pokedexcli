@@ -19,6 +19,7 @@ type config struct {
 	pokeapiClient    pokeapi.Client
 	prevLocationsURL *string
 	nextLocationsURL *string
+	caughtPokemon    map[string]pokeapi.PokemonTraitsResponse
 }
 
 var commandRegistry map[string]cliCommand

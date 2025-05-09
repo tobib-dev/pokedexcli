@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-
-	"github.com/tobib-dev/pokedexcli/internal/pokeapi"
 )
 
 func commandCatch(cfg *config, args ...string) error {
@@ -13,13 +11,12 @@ func commandCatch(cfg *config, args ...string) error {
 	}
 
 	pokeName := args[0]
-	p, err := cfg.pokeapiClient.PokemonGet(pokeName)
-	var pokedex map[string]pokeapi.PokemonTraitsResponse
+	pokemon, err := cfg.pokeapiClient.PokemonGet(pokeName)
 	if err != nil {
 		return err
 	}
 
-	catchChance := 100 - (p.BaseExperience / 4)
+	catchChance := 100 - (pokemon.BaseExperience / 4)
 	if catchChance < 5 {
 		catchChance = 5
 	}
@@ -28,17 +25,12 @@ func commandCatch(cfg *config, args ...string) error {
 	}
 
 	catch := rand.Intn(100) + 1
-	fmt.Printf("Throwing a Pokeball at %s...\n", pokeName)
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 	if catch <= catchChance {
-		fmt.Printf("%s was caught!\n", pokeName)
-		if len(pokedex) == 0 {
-			pokedex := make(map[string]pokeapi.PokemonTraitsResponse)
-			pokedex[pokeName] = p
-		} else {
-			pokedex[pokeName] = p
-		}
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+		cfg.caughtPokemon[pokemon.Name] = pokemon
 	} else {
-		fmt.Printf("%s escaped!\n", pokeName)
+		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}
 
 	return nil
