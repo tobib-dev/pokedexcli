@@ -6,41 +6,38 @@ import (
 	"net/http"
 )
 
-func (c *Client) PokemonGet(pageURL *string) (PokemonResponse, error) {
-	url := baseURL + "/pokemon"
-	if pageURL != nil {
-		url = *pageURL
-	}
+func (c *Client) PokemonGet(pokeName string) (PokemonTraitsResponse, error) {
+	url := baseURL + "/pokemon/" + pokeName
 
-	pokemon := PokemonResponse{}
+	pokemon := PokemonTraitsResponse{}
 	cachedData, ok := c.cache.Get(url)
 	if ok {
 		err := json.Unmarshal(cachedData, &pokemon)
 		if err != nil {
-			return PokemonResponse{}, err
+			return PokemonTraitsResponse{}, err
 		}
 		return pokemon, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return PokemonResponse{}, err
+		return PokemonTraitsResponse{}, err
 	}
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return PokemonResponse{}, err
+		return PokemonTraitsResponse{}, err
 	}
 	defer res.Body.Close()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return PokemonResponse{}, err
+		return PokemonTraitsResponse{}, err
 	}
 
 	err = json.Unmarshal(data, &pokemon)
 	if err != nil {
-		return PokemonResponse{}, err
+		return PokemonTraitsResponse{}, err
 	}
 	c.cache.Add(url, data)
 	return pokemon, nil
