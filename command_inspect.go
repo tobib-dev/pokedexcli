@@ -5,7 +5,7 @@ import (
 )
 
 func commandInspect(cfg *config, args ...string) error {
-	if args[0] == "" {
+	if len(args) != 1 {
 		return fmt.Errorf("Please enter a pokemon!")
 	}
 
